@@ -1,5 +1,5 @@
-pullqueue: Pull request queue visualization
-===========================================
+pullq: Pull request queue visualization
+========================================
 
 This is a tool inspired by [review
 gator](https://github.com/fginther/review-gator) with a number of
