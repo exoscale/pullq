@@ -23,7 +23,7 @@ node {
 }
 
 def docker() {
-  withCredentials([$class: 'StringBinding', credentialsId: 'github-policy-token', variable: 'GITHUB_TOKEN']) {
+  withCredentials([[$class: 'StringBinding', credentialsId: 'github-policy-token', variable: 'GITHUB_TOKEN'],]) {
       docker.withRegistry('https://registry.internal.exoscale.ch') {
       def clojure = docker.image('registry.internal.exoscale.ch/exoscale/clojure:bionic')
       clojure.inside() {
