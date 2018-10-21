@@ -113,6 +113,7 @@
     (cli args
          ["-h" "--help" "Show Help" :default false :flag true]
          ["-t" "--token" "Github Token, overrides GITHUB_TOKEN environment"]
+         ["-o" "--output" "Where to dump data" :default "build/data.edn"]
          ["-f" "--path" "Configuration file path" :default "pullq.conf"])
     (catch Exception _
       (binding [*out* *err*]
@@ -121,19 +122,18 @@
 
 (defn -main
   [& args]
-  (let [[opts _ banner]           (get-cli args)
-        {:keys [path help token]} opts
-        config                    (read-config path)
-        env-token                 (System/getenv "GITHUB_TOKEN")
-        auth                      {:oauth-token (or token env-token)}]
-    (when help
+  (let [[opts _ banner] (get-cli args)
+        config          (read-config (:path opts))
+        env-token       (System/getenv "GITHUB_TOKEN")
+        auth            {:oauth-token (or (:token opts) env-token)}]
+    (when (:help opts)
       (println "Usage: pullq [-t token] [f config]\n")
       (print banner)
       (flush)
       (System/exit 0))
     (try
-      (spit "resources/public/data.edn"
-            (with-out-str (pprint (pull-queue {:oauth-token token} config))))
+      (spit (:output opts) (with-out-str (pprint (pull-queue auth config))))
+      (println "created data file in:" (:output opts))
       (catch Exception e
         (binding [*out* *err*]
           (println "could not generate stats:" (.getMessage e))
