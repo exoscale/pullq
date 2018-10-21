@@ -127,7 +127,7 @@
         env-token       (System/getenv "GITHUB_TOKEN")
         auth            {:oauth-token (or (:token opts) env-token)}]
     (when (:help opts)
-      (println "Usage: pullq [-t token] [f config]\n")
+      (println "Usage: pullq [-t token] [-f config]\n")
       (print banner)
       (flush)
       (System/exit 0))
