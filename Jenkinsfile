@@ -55,7 +55,7 @@ exoscale cli 2
 exoscale cloudstack-dev-ansible 1
 exoscale terraform-provider-exoscale 2
 """
-      sh "clj -m pullq.main"
+      sh "lein run"
       }
     }
   }
