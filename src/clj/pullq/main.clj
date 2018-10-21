@@ -132,6 +132,7 @@
       (flush)
       (System/exit 0))
     (try
+      (println "starting dump, this might take a while")
       (spit (:output opts) (with-out-str (pprint (pull-queue auth config))))
       (println "created data file in:" (:output opts))
       (catch Exception e
