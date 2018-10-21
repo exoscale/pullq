@@ -55,7 +55,7 @@ exoscale cli 2
 exoscale cloudstack-dev-ansible 1
 exoscale terraform-provider-exoscale 2
 """
-      sh "lein run"
+      sh "env LEIN_HOME=/tmp lein run"
       }
     }
   }
