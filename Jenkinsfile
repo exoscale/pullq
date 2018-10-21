@@ -27,8 +27,7 @@ def docker() {
       docker.withRegistry('https://registry.internal.exoscale.ch') {
       def clojure = docker.image('registry.internal.exoscale.ch/exoscale/clojure:bionic')
       clojure.inside() {
-          sh 'echo $PWD'
-	  sh 'ls'
+	  sh 'find src'
           sh """cat <<EOF>pullq.conf
 exoscale puppet 1
 exoscale doc 1
@@ -57,6 +56,7 @@ exoscale cli 2
 exoscale cloudstack-dev-ansible 1
 exoscale terraform-provider-exoscale 2
 """
+      sh "clojure -h"
       sh "clojure -m pullq.main"
       }
     }
