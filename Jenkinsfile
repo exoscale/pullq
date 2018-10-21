@@ -26,7 +26,7 @@ def docker() {
   withCredentials([[$class: 'StringBinding', credentialsId: 'github-policy-token', variable: 'GITHUB_TOKEN'],]) {
       docker.withRegistry('https://registry.internal.exoscale.ch') {
       def clojure = docker.image('registry.internal.exoscale.ch/exoscale/clojure:bionic')
-      clojure.inside() {
+      clojure.inside("-u root --net=host -v /home/exec/.m2/repository:/root/.m2/repository") {
           sh """cat <<EOF>pullq.conf
 exoscale puppet 1
 exoscale doc 1
@@ -55,7 +55,7 @@ exoscale cli 2
 exoscale cloudstack-dev-ansible 1
 exoscale terraform-provider-exoscale 2
 """
-      sh "env LEIN_HOME=$PWD/src/lein lein run"
+      sh "lein run"
       }
     }
   }
