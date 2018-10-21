@@ -68,6 +68,6 @@ def publish() {
     keepAll: true,
     reportDir: 'build',
     reportFiles: 'index.html',
-    reportName: 'Obwald documentation'
+    reportName: 'Pull-Request queue'
   ]
 }
