@@ -12,6 +12,9 @@ departures:
 
 ![screenshot](https://i.imgur.com/MgAi4YR.png)
 
+The latest built version can be seen live at:
+https://ci.internal.exoscale.ch/job/pullq/Pull-Request_queue/index.html
+
 ## Quickstart
 
 A pre-built javascript application exist in the repo,
