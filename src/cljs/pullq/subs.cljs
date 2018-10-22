@@ -35,19 +35,19 @@
 
 (defn filter-pulls
   [db]
-  (let [pred-fn (if (= :open (:filter db)) is-open? (complement is-open?))]
-     (->> (:pulls db)
-          (filter pred-fn)
-          (filter (match-fn (:search db)))
-          (filter (only-fn (:only db)))
-          (remove (hidden-label-fn (:hidden-labels db)))
-          (sort-by (sort-fn (:order db)))
-          (reverse))))
+  (->> (:pulls db)
+       (filter (match-fn (:search db)))
+       (filter (only-fn (:only db)))
+       (remove (hidden-label-fn (:hidden-labels db)))
+       (sort-by (sort-fn (:order db)))
+       (reverse)))
 
 (re-frame/reg-sub
  ::pulls
  (fn [db]
-   (filter-pulls db)))
+   (let [pred-fn (if (= :open (:filter db)) is-open? (complement is-open?))
+         pulls   (filter-pulls db)]
+     (filter pred-fn pulls))))
 
 (defn get-authors
   [pulls]
@@ -64,8 +64,8 @@
 (re-frame/reg-sub
  ::menu-stats
  (fn [db]
-   (let [pulls (filter-pulls db)
-         open  (count (filter is-open? pulls))]
+   (let [pulls     (filter-pulls db)
+         open      (count (filter is-open? pulls))]
      {:open          open
       :ready         (- (count pulls) open)
       :repos         (get-repos pulls)
