@@ -78,13 +78,13 @@
            {:as       "a"
             :active   (= :open filter)
             :on-click #(re-frame/dispatch [::events/set-filter :open])}
-           [sa/Label {:class "orange"} (str open)]
+           [sa/Label {:class "yellow"} (str open)]
            "Open"]
           [sa/MenuItem
            {:as       "a"
             :active   (= :ready filter)
             :on-click #(re-frame/dispatch [::events/set-filter :ready])}
-           [sa/Label {:class "green"} (str ready)]
+           [sa/Label {:class "blue"} (str ready)]
            "Ready"]
           [sa/MenuItem
            [sa/Input

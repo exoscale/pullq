@@ -49,8 +49,8 @@
      :open?    (or (pos? changes) (< oks min-oks))
      :color    (cond
                  (pos? changes)  "red"
-                 (< oks min-oks) "orange"
-                 :else           "green")
+                 (< oks min-oks) "yellow"
+                 :else           "blue")
      :counter  (cond
                  (pos? changes)  changes
                  (< oks min-oks) (- min-oks oks)
