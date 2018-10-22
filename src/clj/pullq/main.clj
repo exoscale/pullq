@@ -57,8 +57,8 @@
                  (< oks min-oks) (- min-oks oks)
                  :else           oks)
      :type     (cond
-                 (= 1 changes)         "change request"
-                 (pos? changes)        "change requests"
+                 (= 1 changes)         "blocker"
+                 (pos? changes)        "blockers"
                  (= 1 (- min-oks oks)) "ok missing"
                  (< oks min-oks)       "oks missing"
                  :else                 "ready")}))
