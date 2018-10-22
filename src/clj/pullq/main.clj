@@ -31,6 +31,7 @@
 (defn pull-reviews
   [auth user repo number]
   (some->> (reviews user repo number auth)
+           (remove #(= (:state %) "PENDING"))
            (map sanitize-review)
            (group-by :login)
            (reduce-kv #(conj %1 (last (sort-by :age %3))) [])))
