@@ -73,7 +73,7 @@
     (fn []
       (let [{:keys [filter search open ready repos order authors only]} @stats]
         [:div
-         [sa/Menu {:vertical true}
+         [sa/Menu {:vertical true :fluid true}
           [sa/MenuItem
            {:as       "a"
             :active   (= :open filter)
@@ -93,7 +93,7 @@
              :on-change   #(re-frame/dispatch [::events/set-search
                                                (-> % .-target .-value)])
              :value       search}]]]
-         [sa/Menu {:vertical true}
+         [sa/Menu {:vertical true :fluid true}
           [sa/MenuItem
            {:as "a"}
            "Refresh"
@@ -176,7 +176,8 @@
 (defn main-panel []
   [:div
    [header-menu]
-   [sa/Grid
-    [sa/GridRow
-     [sa/GridColumn {:width 13 :style {:padding-left "50px"}} [request-table]]
-     [sa/GridColumn {:width 3} [left-menu]]]]])
+   [sa/Container
+    [sa/Grid
+     [sa/GridRow
+      [sa/GridColumn {:width 12} [request-table]]
+      [sa/GridColumn {:width 4} [left-menu]]]]]])
