@@ -150,16 +150,20 @@
     (into [sa/ListSA {:size "mini" :horizontal true :divided true}]
           (map review-entry reviews))]
    [sa/TableCell
-    (let [{:keys [open? counter type color]} status]
-      [sa/Item
-       [sa/ItemContent
-        [sa/ItemHeader
-         (if open?
-           [sa/Button {:as "div" :label-position "right" :compact true}
-            [sa/Label {:basic true :pointing "right"} [:small (str counter)]]
-            [sa/Button {:color color :compact true} [:small type]]]
-           [sa/Button {:color color :compact true} [:small type]])]
-        [sa/ItemMeta [:small (str "updated " (epoch->age updated))]]]])]])
+    (let [{:keys [open? counter type color]} status
+          button-opts                        {:color color
+                                              :compact true
+                                              :size "mini"}
+          type-button                        [sa/Button button-opts
+                                              [:small type]]]
+      [:div
+       (if open?
+         [sa/Button {:as "div" :label-position "right"}
+          [sa/Label {:basic true :pointing "right"} [:small (str counter)]]
+          type-button]
+         type-button)
+       [:div {:style {:color "grey"}}
+        [:small (epoch->age updated)]]])]])
 
 (defn request-table
   []
@@ -179,5 +183,5 @@
    [sa/Container
     [sa/Grid
      [sa/GridRow
-      [sa/GridColumn {:width 12} [request-table]]
-      [sa/GridColumn {:width 4} [left-menu]]]]]])
+      [sa/GridColumn {:width 13} [request-table]]
+      [sa/GridColumn {:width 3} [left-menu]]]]]])
