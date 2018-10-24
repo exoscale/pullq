@@ -153,12 +153,14 @@
     (let [{:keys [open? counter type color]} status
           button-opts                        {:color color
                                               :compact true
+                                              :as "div"
+                                              :fluid true
                                               :size "mini"}
           type-button                        [sa/Button button-opts
                                               [:small type]]]
       [:div
        (if open?
-         [sa/Button {:as "div" :label-position "right"}
+         [sa/Button {:as "div" :label-position "right" :fluid true}
           [sa/Label {:basic true :pointing "right"} [:small (str counter)]]
           type-button]
          type-button)
