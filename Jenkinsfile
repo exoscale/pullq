@@ -32,6 +32,7 @@ exoscale puppet 1
 exoscale doc 1
 exoscale dockerfiles 1
 exoscale cloudstack-private 2
+exoscale confederatio-uri 2
 exoscale bern 2
 exoscale obwald 2
 exoscale website 2
