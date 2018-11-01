@@ -36,6 +36,7 @@ exoscale confederatio-uri 2
 exoscale bern 2
 exoscale obwald 2
 exoscale website 2
+exoscale community 1
 exoscale egoscale 2
 exoscale testing-compute 1
 exoscale console 2
