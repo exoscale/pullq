@@ -71,20 +71,26 @@
   []
   (let [stats (re-frame/subscribe [::subs/menu-stats])]
     (fn []
-      (let [{:keys [filter search open ready repos order authors only]} @stats]
+      (let [{:keys [filter search open bug ready repos order authors only]} @stats]
         [:div
          [sa/Menu {:vertical true :fluid true}
           [sa/MenuItem
            {:as       "a"
+            :active   (= :critical filter)
+            :on-click #(re-frame/dispatch [::events/set-filter :bug])}
+           [sa/Label {:class "red"} bug]
+           "Bug"]
+          [sa/MenuItem
+           {:as       "a"
             :active   (= :open filter)
             :on-click #(re-frame/dispatch [::events/set-filter :open])}
-           [sa/Label {:class "yellow"} (str open)]
+           [sa/Label {:class "yellow"} open]
            "Open"]
           [sa/MenuItem
            {:as       "a"
             :active   (= :ready filter)
             :on-click #(re-frame/dispatch [::events/set-filter :ready])}
-           [sa/Label {:class "blue"} (str ready)]
+           [sa/Label {:class "blue"} ready]
            "Ready"]
           [sa/MenuItem
            [sa/Input
