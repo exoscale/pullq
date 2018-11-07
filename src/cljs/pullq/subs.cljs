@@ -7,6 +7,10 @@
   [pull]
   (get-in pull [:status :open?]))
 
+(defn bug?
+  [{:keys [labels]}]
+  (boolean (seq (filter #(str/includes? % "bug") labels))))
+
 (defn match-fn
   [pattern]
   (fn [{:keys [title repo]}]
@@ -45,9 +49,12 @@
 (re-frame/reg-sub
  ::pulls
  (fn [db]
-   (let [pred-fn (if (= :open (:filter db)) is-open? (complement is-open?))
-         pulls   (filter-pulls db)]
-     (filter pred-fn pulls))))
+   (let [filter-name (:filter db)]
+     (filter (cond
+               (= :open filter-name) is-open?
+               (= :bug  filter-name) bug?
+               :else                 (complement is-open?))
+             (filter-pulls db)))))
 
 (defn get-authors
   [pulls]
@@ -67,6 +74,7 @@
    (let [pulls     (filter-pulls db)
          open      (count (filter is-open? pulls))]
      {:open          open
+      :bug           (count (filter bug? pulls))
       :ready         (- (count pulls) open)
       :repos         (get-repos pulls)
       :authors       (get-authors pulls)
