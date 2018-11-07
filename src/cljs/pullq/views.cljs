@@ -136,16 +136,19 @@
     [sa/ListHeader [sa/Icon {:name (state->icon state)}]]]])
 
 (defn request-row
-  [{:keys [repo avatar url title status reviews created status updated]}]
+  [{:keys [repo avatar url title status reviews created status updated login labels]}]
   [sa/TableRow
    [sa/TableCell [sa/CommentGroup
                   [sa/CommentSA
-                   [sa/CommentAvatar {:src avatar :size "mini"}]
+                   [sa/CommentAvatar {:src avatar :size "mini" :alt login}]
                    [sa/CommentContent
                     [sa/CommentAuthor {:as "a" :href (:url repo)}
                      (:name repo)]
                     [sa/CommentMetadata [:div (epoch->age created)]]
-                    [sa/CommentText [:a {:href url} title]]]]]]
+                    [sa/CommentText
+                     (when (some #{"bug"} labels)
+                       [sa/Icon {:name "bug" :size "small"}])
+                     [:a {:href url} title]]]]]]
    [sa/TableCell
     (into [sa/ListSA {:size "mini" :horizontal true :divided true}]
           (map review-entry reviews))]
