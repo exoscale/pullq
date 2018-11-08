@@ -1,5 +1,6 @@
 (ns pullq.views
   (:require
+   [clojure.string :as str]
    [re-frame.core :as re-frame]
    [pullq.events :as events]
    [pullq.subs :as subs]
@@ -67,25 +68,30 @@
                                                    [::events/show-label label])
                                        :name     "delete"}]]))])))
 
+(def filter-colors
+  {:bug   "red"
+   :open  "yellow"
+   :ready "blue"})
+
+(defn filter-counter
+  [current-filter filter count]
+  [sa/MenuItem
+   {:as       "a"
+    :active   (= current-filter filter)
+    :on-click #(re-frame/dispatch [::events/set-filter filter])}
+   [sa/Label {:class (get filter-colors filter)} count]
+   (-> filter name str/capitalize)])
+
 (defn left-menu
   []
   (let [stats (re-frame/subscribe [::subs/menu-stats])]
     (fn []
-      (let [{:keys [filter search open ready repos order authors only]} @stats]
+      (let [{:keys [filter search open bug ready repos order authors only]} @stats]
         [:div
          [sa/Menu {:vertical true :fluid true}
-          [sa/MenuItem
-           {:as       "a"
-            :active   (= :open filter)
-            :on-click #(re-frame/dispatch [::events/set-filter :open])}
-           [sa/Label {:class "yellow"} (str open)]
-           "Open"]
-          [sa/MenuItem
-           {:as       "a"
-            :active   (= :ready filter)
-            :on-click #(re-frame/dispatch [::events/set-filter :ready])}
-           [sa/Label {:class "blue"} (str ready)]
-           "Ready"]
+          [filter-counter filter :bug bug]
+          [filter-counter filter :open open]
+          [filter-counter filter :ready ready]
           [sa/MenuItem
            [sa/Input
             {:icon        "search"
@@ -136,16 +142,17 @@
     [sa/ListHeader [sa/Icon {:name (state->icon state)}]]]])
 
 (defn request-row
-  [{:keys [repo avatar url title status reviews created status updated]}]
+  [{:keys [repo avatar url title status reviews created status updated login labels]}]
   [sa/TableRow
    [sa/TableCell [sa/CommentGroup
                   [sa/CommentSA
-                   [sa/CommentAvatar {:src avatar :size "mini"}]
+                   [sa/CommentAvatar {:src avatar :size "mini" :alt login}]
                    [sa/CommentContent
                     [sa/CommentAuthor {:as "a" :href (:url repo)}
                      (:name repo)]
                     [sa/CommentMetadata [:div (epoch->age created)]]
-                    [sa/CommentText [:a {:href url} title]]]]]]
+                    [sa/CommentText
+                     [:a {:href url} title]]]]]]
    [sa/TableCell
     (into [sa/ListSA {:size "mini" :horizontal true :divided true}]
           (map review-entry reviews))]
