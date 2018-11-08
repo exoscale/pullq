@@ -1,5 +1,6 @@
 (ns pullq.views
   (:require
+   [clojure.string :as str]
    [re-frame.core :as re-frame]
    [pullq.events :as events]
    [pullq.subs :as subs]
@@ -67,6 +68,20 @@
                                                    [::events/show-label label])
                                        :name     "delete"}]]))])))
 
+(def filter-colors
+  {:bug   "red"
+   :open  "yellow"
+   :ready "blue"})
+
+(defn filter-counter
+  [current-filter filter count]
+  [sa/MenuItem
+   {:as       "a"
+    :active   (= current-filter filter)
+    :on-click #(re-frame/dispatch [::events/set-filter filter])}
+   [sa/Label {:class (get filter-colors filter)} count]
+   (-> filter name str/capitalize)])
+
 (defn left-menu
   []
   (let [stats (re-frame/subscribe [::subs/menu-stats])]
@@ -74,24 +89,9 @@
       (let [{:keys [filter search open bug ready repos order authors only]} @stats]
         [:div
          [sa/Menu {:vertical true :fluid true}
-          [sa/MenuItem
-           {:as       "a"
-            :active   (= :critical filter)
-            :on-click #(re-frame/dispatch [::events/set-filter :bug])}
-           [sa/Label {:class "red"} bug]
-           "Bug"]
-          [sa/MenuItem
-           {:as       "a"
-            :active   (= :open filter)
-            :on-click #(re-frame/dispatch [::events/set-filter :open])}
-           [sa/Label {:class "yellow"} open]
-           "Open"]
-          [sa/MenuItem
-           {:as       "a"
-            :active   (= :ready filter)
-            :on-click #(re-frame/dispatch [::events/set-filter :ready])}
-           [sa/Label {:class "blue"} ready]
-           "Ready"]
+          [filter-counter filter :bug bug]
+          [filter-counter filter :open open]
+          [filter-counter filter :ready ready]
           [sa/MenuItem
            [sa/Input
             {:icon        "search"
@@ -152,8 +152,6 @@
                      (:name repo)]
                     [sa/CommentMetadata [:div (epoch->age created)]]
                     [sa/CommentText
-                     (when (some #{"bug"} labels)
-                       [sa/Icon {:name "bug" :size "small"}])
                      [:a {:href url} title]]]]]]
    [sa/TableCell
     (into [sa/ListSA {:size "mini" :horizontal true :divided true}]
