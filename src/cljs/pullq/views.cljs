@@ -79,7 +79,7 @@
    {:as       "a"
     :active   (= current-filter filter)
     :on-click #(re-frame/dispatch [::events/set-filter filter])}
-   [sa/Label {:class (get filter-colors filter)} count]
+   [sa/Label {:class (when (pos? count) (get filter-colors filter))} count]
    (-> filter name str/capitalize)])
 
 (defn left-menu
