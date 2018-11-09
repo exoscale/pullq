@@ -82,7 +82,7 @@
    [sa/Label {:class (when (pos? count) (get filter-colors filter))} count]
    (-> filter name str/capitalize)])
 
-(defn left-menu
+(defn right-menu
   []
   (let [stats (re-frame/subscribe [::subs/menu-stats])]
     (fn []
@@ -193,4 +193,4 @@
     [sa/Grid
      [sa/GridRow
       [sa/GridColumn {:width 13} [request-table]]
-      [sa/GridColumn {:width 3} [left-menu]]]]]])
+      [sa/GridColumn {:width 3} [right-menu]]]]]])
