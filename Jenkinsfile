@@ -35,6 +35,7 @@ exoscale blobtool 2
 exoscale cli 2
 exoscale clostack 2
 exoscale cloud-canary 1
+exoscale cloudstack-console-proxy 2
 exoscale cloudstack-dev-ansible 1
 exoscale cloudstack-private 2
 exoscale collectd-python-extra 1
