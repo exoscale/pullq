@@ -48,6 +48,7 @@ exoscale doc 1
 exoscale dockerfiles 1
 exoscale egoscale 2
 exoscale exoip 2
+exoscale go-reporter 2
 exoscale graphq 2
 exoscale himpy 1
 exoscale jlog 1
