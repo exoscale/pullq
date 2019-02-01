@@ -1,0 +1,14 @@
+/*.log
+/target
+/*-init.clj
+/resources/public/js/compiled
+/resources/public/data.edn
+/build/data.edn
+out
+/figwheel_server.log
+/pullq.conf
+/.nrepl-port
+/.cpcache
+/build/.cpcache
+/build/.nrepl-port
+/.rebel_readline_history

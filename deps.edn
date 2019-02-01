@@ -1,0 +1,6 @@
+{:paths ["src/clj"]
+ :deps
+ {org.clojure/clojure {:mvn/version "1.9.0"}
+  org.clojure/tools.cli {:mvn/version "0.4.1"}
+  irresponsible/tentacles {:mvn/version "0.6.2"}
+  clj-time {:mvn/version "0.15.0"}}}
