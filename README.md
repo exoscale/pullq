@@ -22,8 +22,9 @@ so to test this program you can take these two steps:
 
 ### Generating the data-file
 
-You will need [clojure](http://clojure.org) installed on your
-system.
+You will need to install [Leiningen](https://leiningen.org/), the
+[Clojure](https://clojure.org) build tool. It will take care of gathering other
+dependencies for you (putting them in your ~/.m2 folder).
 
 To generate the data file, you will need a config file, usually
 stored in `pullq.conf`, you will also need to provide a
@@ -39,7 +40,11 @@ org some-repo 1
 my-other-org repo3 1
 ```
 
-You can then generate the data with: `clojure -m pullq.main`
+You can then generate the data with: 
+
+```
+lein run
+```
 
 ### Looking at the output
 
