@@ -101,7 +101,7 @@ In the repository, run: `lein cljsbuild once min`
 
 You probably will want to move your built app.js file from
 `resources/public/js/compiled` to `build/js/compiled`, so that your changes are
-served with your data file etc...
+served with your data file.
 
 ## Development Mode
 
