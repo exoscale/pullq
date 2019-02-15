@@ -28,13 +28,26 @@
    :state  (or (get states state) (keyword (str/lower-case state)))
    :age    (to-epoch (parse submitted_at))})
 
+(defn aggregate-reviews
+  "Create an aggregate review for a user given all of a user's reviews.
+
+  We take the latest review, but override its :state with the latest non-comment
+  review's :state if there is one. That prevents having somebody approve a review
+  then cancel the approval by commenting further."
+  [reviews]
+  (let [sorted (sort-by :age reviews)
+        latest (last sorted)
+        non-comment (filter #(#{:approved :needs-changes} (:state %1)) sorted)
+        latest-non-comment (last non-comment)]
+    (assoc latest :state (:state latest-non-comment :comment))))
+
 (defn pull-reviews
-  [auth user repo number]
-  (some->> (reviews user repo number auth)
+  [raw-reviews]
+  (some->> raw-reviews
            (remove #(= (:state %) "PENDING"))
            (map sanitize-review)
            (group-by :login)
-           (reduce-kv #(conj %1 (last (sort-by :age %3))) [])))
+           (reduce-kv #(conj %1 (aggregate-reviews %3)) [])))
 
 (defn review-stats
   [reviews min-oks]
@@ -65,12 +78,13 @@
 
 (defn pull-stats
   [auth min-oks {:keys [labels number title] :as pull}]
-  (let [updated (:updated_at pull)
-        created (:created_at pull)
-        login   (get-in pull [:user :login])
-        repo    (get-in pull [:head :repo :name])
-        user    (get-in pull [:head :repo :owner :login])
-        reviews (pull-reviews auth user repo number)]
+  (let [updated     (:updated_at pull)
+        created     (:created_at pull)
+        login       (get-in pull [:user :login])
+        repo        (get-in pull [:head :repo :name])
+        user        (get-in pull [:head :repo :owner :login])
+        raw-reviews (reviews user repo number auth)
+        reviews     (pull-reviews raw-reviews)]
     {:repo    {:name (get-in pull [:head :repo :name])
                :url  (get-in pull [:head :repo :html_url])}
      :url     (:html_url pull)
