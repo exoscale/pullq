@@ -140,7 +140,8 @@
   (let [[opts _ banner] (get-cli args)
         config          (read-config (:path opts))
         env-token       (System/getenv "GITHUB_TOKEN")
-        auth            {:oauth-token (or (:token opts) env-token)}]
+        auth            {:oauth-token (or (:token opts) env-token)
+                         :per-page 100}]
     (when (:help opts)
       (println "Usage: pullq [-t token] [-f config] [-o outfile]\n")
       (print banner)
