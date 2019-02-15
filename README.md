@@ -10,7 +10,7 @@ departures:
 - Decoupling of stats gathering and presentation
 - Additional dynamic filters (authors, repositories, labels, status)
 
-![screenshot](https://i.imgur.com/MgAi4YR.png)
+![screenshot](https://i.imgur.com/grOsAsw.png)
 
 ## Quickstart
 
