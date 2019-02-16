@@ -12,3 +12,4 @@ out
 /build/.cpcache
 /build/.nrepl-port
 /.rebel_readline_history
+.lein-failures
