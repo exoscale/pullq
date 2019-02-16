@@ -35,9 +35,9 @@
   review's :state if there is one. That prevents having somebody approve a review
   then cancel the approval by commenting further."
   [reviews]
-  (let [sorted (sort-by :age reviews)
-        latest (last sorted)
-        non-comment (filter #(#{:approved :needs-changes} (:state %1)) sorted)
+  (let [sorted             (sort-by :age reviews)
+        latest             (last sorted)
+        non-comment        (filter #(#{:approved :needs-changes} (:state %1)) sorted)
         latest-non-comment (last non-comment)]
     (assoc latest :state (:state latest-non-comment :comment))))
 
