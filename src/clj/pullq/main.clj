@@ -5,7 +5,7 @@
             [clojure.tools.cli :refer [cli]]
             [clj-time.format   :refer [parse]]
             [clj-time.coerce   :refer [to-epoch]]
-            [tentacles.pulls   :refer [pulls]]
+            [tentacles.pulls   :refer [specific-pull pulls]]
             [tentacles.core    :refer [api-call]]))
 
 (defn reviews
@@ -77,7 +77,7 @@
                  :else                 "ready")}))
 
 (defn pull-stats
-  [auth min-oks {:keys [labels number title] :as pull}]
+  [auth min-oks {:keys [labels number title mergeable_state] :as pull}]
   (let [updated     (:updated_at pull)
         created     (:created_at pull)
         login       (get-in pull [:user :login])
@@ -85,22 +85,32 @@
         user        (get-in pull [:head :repo :owner :login])
         raw-reviews (reviews user repo number auth)
         reviews     (pull-reviews raw-reviews)]
-    {:repo    {:name (get-in pull [:head :repo :name])
-               :url  (get-in pull [:head :repo :html_url])}
-     :url     (:html_url pull)
-     :labels  (mapv :name labels)
-     :title   title
-     :updated (to-epoch (parse updated))
-     :created (to-epoch (parse created))
-     :login   login
-     :avatar  (get-in pull [:user :avatar_url])
-     :reviews (vec (sort-by :age reviews))
-     :status  (review-stats reviews min-oks)}))
+    {:repo            {:name (get-in pull [:head :repo :name])
+                       :url  (get-in pull [:head :repo :html_url])}
+     :url             (:html_url pull)
+     :labels          (mapv :name labels)
+     :title           title
+     :mergeable-state mergeable_state
+     :updated         (to-epoch (parse updated))
+     :created         (to-epoch (parse created))
+     :login           login
+     :avatar          (get-in pull [:user :avatar_url])
+     :reviews         (vec (sort-by :age reviews))
+     :status          (review-stats reviews min-oks)}))
+
+(defn pulls-with-details
+  [user repo auth]
+  (map (fn [{:keys [number] :as pull}]
+         (let [details (specific-pull user repo number auth)]
+           (merge details pull)))
+       (pulls user repo auth)))
 
 (defn pull-fn
   [auth]
   (fn [[user repo min-oks]]
-    (map (partial pull-stats auth min-oks) (pulls user repo auth))))
+    (->> (pulls-with-details user repo auth)
+         (remove #(= "draft" (:mergeable_state %)))
+         (map (partial pull-stats auth min-oks)))))
 
 (defn pull-queue
   [auth config]
@@ -155,3 +165,13 @@
         (binding [*out* *err*]
           (println "could not generate stats:" (.getMessage e))
           (System/exit 1))))))
+
+(comment
+  (def auth {})
+  (def config [["pyr" "dot.emacs" 2] ["pyr" "watchman" 2]])
+
+;;  (pulls-with-details "pyr" "dot.emacs" auth)
+  (pull-queue auth config)
+
+
+  )

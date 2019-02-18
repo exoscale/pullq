@@ -1,14 +1,14 @@
 (defproject pull-queue "0.1.1"
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.439"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.520"]
                  [org.clojure/tools.cli "0.4.1"]
-                 [cljsjs/moment "2.22.2-1"]
+                 [cljsjs/moment "2.24.0-0"]
                  [day8.re-frame/http-fx "0.1.6"]
-                 [irresponsible/tentacles "0.6.2"]
+                 [irresponsible/tentacles "0.6.3"]
                  [clj-time "0.15.1"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
-                 [soda-ash "0.82.2"]]
+                 [soda-ash "0.83.0"]]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :main pullq.main
   :min-lein-version "2.5.3"
@@ -19,9 +19,9 @@
   :profiles
   {:dev  {:dependencies [[binaryage/devtools "0.9.10"]
                          [day8.re-frame/tracing "0.5.1"]
-                         [figwheel-sidecar "0.5.17"]
-                         [cider/piggieback "0.3.10"]]
-          :plugins      [[lein-figwheel "0.5.17"]]}
+                         [figwheel-sidecar "0.5.18"]
+                         [cider/piggieback "0.4.0"]]
+          :plugins      [[lein-figwheel "0.5.18"]]}
    :prod {:dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}}
   :cljsbuild
   {:builds
