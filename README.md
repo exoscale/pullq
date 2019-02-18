@@ -1,6 +1,8 @@
 pullq: Pull request queue visualization
 ========================================
 
+![travis build](https://api.travis-ci.org/exoscale/pullq.svg?branch=master)
+
 This is a tool inspired by [review
 gator](https://github.com/fginther/review-gator) with a number of
 differences:
