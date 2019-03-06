@@ -2,7 +2,7 @@
 
 (def default-db
   {:only          {:author nil :repo nil}
-   :hidden-labels ["wip" "hold"]
+   :hidden-labels ["wip" "hold" "content"]
    :filter        :open
    :order         :updated
    :search        ""
