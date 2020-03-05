@@ -6,7 +6,8 @@
             [ring.util.response :as res]
             [ring.middleware.params :refer [wrap-params]]
             [aleph.http :as http]
-            [pullq.queue :refer [pull-queue]]))
+            [pullq.queue :refer [pull-queue]])
+  (:gen-class))
 
 (def valid-conf
   #"^([A-Za-z0-9-]+)[ \t]+([A-Za-z0-9-]+)[ \t]+([0-9]+).*")
