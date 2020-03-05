@@ -27,41 +27,30 @@ exoscale pullq 1
 exoscale cli 2
 EOF
 lein run
-cd build
-python3 -m http.server
 xdg-open http://localhost:8000
-```
-
-You can now run this in e.g a cron:
-
-```
-lein run
 ```
 
 ## Overview
 
-Pullq is essentially a clojure program that generates a data file, that you run
-periodically (via cron, or [jenkins](https://jenkins.io), or whatever you like).
-
-The web application included in this repository can be served along with that
-data file with any webserver as static files, and will render an interface like
-the screenshot above.
+Pullq is a [Clojure](https://clojure.org) server that will serve a static
+[ClojureScript](https://clojurescript.org/) application, and periodically
+refresh its knowledge of the configured project's pull request status.
 
 ## Running pullq
 
 Since a pre-built javascript application is included in this repo,
-all you need to use pullq are these two steps:
+all you need to use pullq are:
 
-- Generate a data-file for your repositories
-- Look at the output
-
-### Generating the data-file
+- Creating a valid configuration file
+- Running the server
 
 You will need to install [Leiningen](https://leiningen.org/), the
 [Clojure](https://clojure.org) build tool. It will take care of gathering other
 dependencies for you (putting them in your ~/.m2 folder).
 
-To generate the data file, you will need a config file, defaulting to
+### Creating a configuration file
+
+To run the server, you will need a config file, defaulting to
 `pullq.conf` in the current directory. You will also need to provide a github
 token for private repository access, either in the `GITHUB_TOKEN` environment
 variable, or by providing the `-t` command line flag.
@@ -74,20 +63,22 @@ clojure clojure 2
 clojure clojurescript 2
 ```
 
-You can then generate the data periodically with:
+### Running the server
+
+In its simplest form, Running the server is done by running
 
 ```
 lein run
 ```
 
-### Looking at the output
+at the top-level directory of this code's checkout.
 
-The `build` subdirectory can now be served with any webserver as static files.
-
-As an example, let's serve it with python3's built-in webserver:
+However, it is recommended to generate a [github personal access
+token](https://github.com/settings/tokens) for this app to use, in order to have
+a more reasonable rate-limiting against the github API. The invocation becomes;
 
 ```
-(cd build  && python3 -m http.server)
+GITHUB_TOKEN=... lein run
 ```
 
 You can now browse to http://localhost:8000, have fun!
@@ -101,9 +92,7 @@ You will need [leiningen](http://leiningen.org) installed for this step as well.
 
 In the repository, run: `lein cljsbuild once min`
 
-You probably will want to move your built app.js file from
-`resources/public/js/compiled` to `build/js/compiled`, so that your changes are
-served with your data file.
+Note that the compiled application in `resources/` is updated.
 
 ## Development Mode
 
