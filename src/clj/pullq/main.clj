@@ -1,124 +1,29 @@
 (ns pullq.main
-  (:require [clojure.string    :as str]
+  (:require [bidi.ring :refer [->Redirect ->ResourcesMaybe make-handler]]
             [clojure.java.io   :as io]
-            [clojure.pprint    :refer [pprint]]
             [clojure.tools.cli :refer [cli]]
-            [clj-time.format   :refer [parse]]
-            [clj-time.coerce   :refer [to-epoch]]
-            [tentacles.pulls   :refer [specific-pull pulls]]
-            [tentacles.core    :refer [api-call]]))
-
-(defn reviews
-  [user repo pull & [options]]
-  (let [resp (api-call :get "repos/%s/%s/pulls/%s/reviews"
-                       [user repo pull] options)]
-    (when (< (:status resp 200) 300)
-      resp)))
-
-(def states
-  {"COMMENTED"         :comment
-   "APPROVED"          :approved
-   "CHANGES_REQUESTED" :needs-changes})
-
-(defn sanitize-review
-  [{:keys [user state html_url submitted_at] :or {state "unknown"} :as input}]
-  {:login  (:login user)
-   :url    html_url
-   :avatar (:avatar_url user)
-   :state  (or (get states state) (keyword (str/lower-case state)))
-   :age    (to-epoch (parse submitted_at))})
-
-(defn aggregate-reviews
-  "Create an aggregate review for a user given all of a user's reviews.
-
-  We take the latest review, but override its :state with the latest non-comment
-  review's :state if there is one. That prevents having somebody approve a review
-  then cancel the approval by commenting further."
-  [reviews]
-  (let [sorted             (sort-by :age reviews)
-        latest             (last sorted)
-        non-comment        (filter #(#{:approved :needs-changes} (:state %1)) sorted)
-        latest-non-comment (last non-comment)]
-    (assoc latest :state (:state latest-non-comment :comment))))
-
-(defn pull-reviews
-  [raw-reviews]
-  (some->> raw-reviews
-           (remove #(= (:state %) "PENDING"))
-           (map sanitize-review)
-           (group-by :login)
-           (reduce-kv #(conj %1 (aggregate-reviews %3)) [])))
-
-(defn review-stats
-  [reviews min-oks]
-  (let [states   (mapv :state reviews)
-        oks      (count (filter #{:approved} states))
-        changes  (count (filter #{:needs-changes} states))
-        comments (count (filter #{:comment} states))
-        color    (cond (pos? changes) "red")]
-    {:min-oks  min-oks
-     :oks      oks
-     :comments comments
-     :changes  changes
-     :open?    (or (pos? changes) (< oks min-oks))
-     :color    (cond
-                 (pos? changes)  "red"
-                 (< oks min-oks) "yellow"
-                 :else           "blue")
-     :counter  (cond
-                 (pos? changes)  changes
-                 (< oks min-oks) (- min-oks oks)
-                 :else           oks)
-     :type     (cond
-                 (= 1 changes)         "blocker"
-                 (pos? changes)        "blockers"
-                 (= 1 (- min-oks oks)) "ok missing"
-                 (< oks min-oks)       "oks missing"
-                 :else                 "ready")}))
-
-(defn pull-stats
-  [auth min-oks {:keys [labels number title mergeable_state] :as pull}]
-  (let [updated     (:updated_at pull)
-        created     (:created_at pull)
-        login       (get-in pull [:user :login])
-        repo        (get-in pull [:head :repo :name])
-        user        (get-in pull [:head :repo :owner :login])
-        raw-reviews (reviews user repo number auth)
-        reviews     (pull-reviews raw-reviews)]
-    {:repo            {:name (get-in pull [:head :repo :name])
-                       :url  (get-in pull [:head :repo :html_url])}
-     :url             (:html_url pull)
-     :labels          (mapv :name labels)
-     :title           title
-     :mergeable-state mergeable_state
-     :updated         (to-epoch (parse updated))
-     :created         (to-epoch (parse created))
-     :login           login
-     :avatar          (get-in pull [:user :avatar_url])
-     :reviews         (vec (sort-by :age reviews))
-     :status          (review-stats reviews min-oks)}))
-
-(defn pulls-with-details
-  [user repo auth]
-  (map (fn [{:keys [number] :as pull}]
-         (let [details (specific-pull user repo number auth)]
-           (merge details pull)))
-       (pulls user repo auth)))
-
-(defn pull-fn
-  [auth]
-  (fn [[user repo min-oks]]
-    (->> (pulls-with-details user repo auth)
-         (remove #(= "draft" (:mergeable_state %)))
-         (map (partial pull-stats auth min-oks)))))
-
-(defn pull-queue
-  [auth config]
-  (vec
-   (mapcat (pull-fn auth) config)))
+            [clojure.pprint    :refer [pprint]]
+            [ring.util.response :as res]
+            [ring.middleware.params :refer [wrap-params]]
+            [aleph.http :as http]
+            [pullq.queue :refer [pull-queue]]))
 
 (def valid-conf
   #"^([A-Za-z0-9-]+)[ \t]+([A-Za-z0-9-]+)[ \t]+([0-9]+).*")
+
+(def five-minutes
+  (* 5 60 1000))
+
+;; This is the main application state. A simple atom that the periodic-refresher
+;; will reset!.
+(def data
+  (atom []))
+
+(defn log
+  "A cheap and dirty logging function that will prepend the date to text."
+  [text]
+  (let [now (.toString (java.util.Date.))]
+    (println now "-" text)))
 
 (defn read-config
   [path]
@@ -138,12 +43,44 @@
     (cli args
          ["-h" "--help" "Show Help" :default false :flag true]
          ["-t" "--token" "Github Token, overrides GITHUB_TOKEN environment"]
-         ["-o" "--output" "Where to dump data" :default "build/data.edn"]
-         ["-f" "--path" "Configuration file path" :default "pullq.conf"])
+         ["-f" "--path" "Configuration file path" :default "pullq.conf"]
+         ["-i" "--interval" "Interval at which data will be re-queried from github" :default (str five-minutes)]
+         ["-p" "--port" "The port on which the HTTP server will be listening" :default (str 8000)])
     (catch Exception _
       (binding [*out* *err*]
         (println "could not parse arguments")
         (System/exit 1)))))
+
+(defn data-handler
+  "The handler for the data.edn file. Simply make the data and EDN string and
+  add the appropriate header."
+  [auth config req]
+  (-> (res/response (pr-str @data))
+      (res/header "content-type" "application/octet-stream")))
+
+(defn scheduled-pull
+  "A single pull of the data from github, as done by the periodic scheduler."
+  [auth config]
+  (log "Refreshing data from github")
+  (try
+    (reset! data (pull-queue auth config))
+    (catch Exception e (log e)))
+  (log "refresh done"))
+
+(defn handler
+  "The routes handler for the web server.
+
+  All the routes are just forwarded to ressources, except the data.edn path
+  for which we serve the edn data from our application state directly."
+  [auth config]
+  (make-handler ["/" [["data.edn" (partial data-handler auth config)]
+                      ["" (->ResourcesMaybe {:prefix "public/"})]
+                      ["" (->Redirect 301 "index.html")]]]))
+
+(defn periodic-refresh
+  "Periodically refresh the data from github."
+  [auth config interval]
+  (future (while true (do (Thread/sleep interval) (scheduled-pull auth config)))))
 
 (defn -main
   [& args]
@@ -151,27 +88,14 @@
         config          (read-config (:path opts))
         env-token       (System/getenv "GITHUB_TOKEN")
         auth            {:oauth-token (or (:token opts) env-token)
-                         :per-page 100}]
-    (when (:help opts)
-      (println "Usage: pullq [-t token] [-f config] [-o outfile]\n")
-      (print banner)
-      (flush)
-      (System/exit 0))
-    (try
-      (println "starting dump, this might take a while")
-      (spit (:output opts) (with-out-str (pprint (pull-queue auth config))))
-      (println "created data file in:" (:output opts))
-      (catch Exception e
-        (binding [*out* *err*]
-          (println "could not generate stats:" (.getMessage e))
-          (System/exit 1))))))
+                         :per-page    100}
+        interval        (Integer/parseInt (:interval opts))
+        port            (Integer/parseInt (:port opts))]
 
-(comment
-  (def auth {})
-  (def config [["pyr" "dot.emacs" 2] ["pyr" "watchman" 2]])
-
-;;  (pulls-with-details "pyr" "dot.emacs" auth)
-  (pull-queue auth config)
-
-
-  )
+    (log "Starting initial data dump - this may take a while")
+    (reset! data (pull-queue auth config))
+    (log "Initial data dump acquired, starting server")
+    (http/start-server (handler auth config) {:port port})
+    (log "starting periodic refresh")
+    (periodic-refresh auth config interval)
+    (log (format "!!! server ready and listening on port %d !!!" port))))

@@ -8,7 +8,9 @@
                  [clj-time "0.15.1"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
-                 [soda-ash "0.83.0"]]
+                 [soda-ash "0.83.0"]
+                 [aleph "0.4.6"]
+                 [bidi "2.1.6"]]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :main pullq.main
   :min-lein-version "2.5.3"
