@@ -30,6 +30,26 @@ lein run
 xdg-open http://localhost:8000
 ```
 
+## Running in Docker
+
+An included Dockerfile lets you conveniently build a ready-to-go pullq container
+with:
+
+```
+make docker
+```
+
+**Note**: the top-level directory `pullq.conf` file will be included in the
+resulting container image. You can of course mount a configuration file at the
+same path instead.
+
+You can easily pass your GITHUB_TOKEN to the container when starting it, and
+redirect the default port to localhost (as an example) with:
+
+```
+docker -it -e GITHUB_TOKEN=... -p 127.0.0.1:8000:8000 <image hash>
+```
+
 ## Overview
 
 Pullq is a [Clojure](https://clojure.org) server that will serve a static
