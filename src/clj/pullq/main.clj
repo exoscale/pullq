@@ -62,7 +62,9 @@
   "A single pull of the data from github, as done by the periodic scheduler."
   [auth config]
   (log "Refreshing data from github")
-  (reset! data (pull-queue auth config))
+  (try
+    (reset! data (pull-queue auth config))
+    (catch Exception e (log e)))
   (log "refresh done"))
 
 (defn handler
