@@ -10,12 +10,13 @@
                  [re-frame "0.10.6"]
                  [soda-ash "0.83.0"]
                  [aleph "0.4.6"]
+                 [ring/ring-core "1.8.0"]
                  [bidi "2.1.6"]]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :main pullq.main
   :min-lein-version "2.5.3"
   :source-paths ["src/clj" "src/cljs"]
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :clean-targets ^{:protect false} ["target"]
   :figwheel {:css-dirs ["resources/public/css"]}
   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
   :profiles
@@ -24,6 +25,8 @@
                          [figwheel-sidecar "0.5.18"]
                          [cider/piggieback "0.4.0"]]
           :plugins      [[lein-figwheel "0.5.18"]]}
+   :uberjar {:aot :all
+             :resource-paths ["resources/public"]}
    :prod {:dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}}
   :cljsbuild
   {:builds
