@@ -118,7 +118,7 @@
    (mapcat (pull-fn auth) config)))
 
 (def valid-conf
-  #"^([A-Za-z0-9-]+)[ \t]+([A-Za-z0-9-]+)[ \t]+([0-9]+).*")
+  #"^([A-Za-z0-9-]+)[ \t]+([A-Za-z0-9-\.]+)[ \t]+([0-9]+).*")
 
 (defn read-config
   [path]
