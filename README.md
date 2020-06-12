@@ -1,7 +1,7 @@
 pullq: Pull request queue visualization
 ========================================
 
-![travis build](https://api.travis-ci.org/exoscale/pullq.svg?branch=master)
+![GH Action Badge](https://github.com/exoscale/pullq/workflows/Clojure/badge.svg)
 
 This is a tool inspired by [review
 gator](https://github.com/fginther/review-gator) with a number of
@@ -41,7 +41,7 @@ lein run
 ## Overview
 
 Pullq is essentially a clojure program that generates a data file, that you run
-periodically (via cron, or [jenkins](https://jenkins.io), or whatever you like).
+periodically (via cron, or any preferred method).
 
 The web application included in this repository can be served along with that
 data file with any webserver as static files, and will render an interface like
@@ -104,32 +104,6 @@ In the repository, run: `lein cljsbuild once min`
 You probably will want to move your built app.js file from
 `resources/public/js/compiled` to `build/js/compiled`, so that your changes are
 served with your data file.
-
-## Development Mode
-
-### Start Cider from Emacs:
-
-Put this in your Emacs config file:
-
-```
-(setq cider-cljs-lein-repl
-	"(do (require 'figwheel-sidecar.repl-api)
-         (figwheel-sidecar.repl-api/start-figwheel!)
-         (figwheel-sidecar.repl-api/cljs-repl))")
-```
-
-Navigate to a clojurescript file and start a figwheel REPL with
-`cider-jack-in-clojurescript` or (`C-c M-J`)
-
-### Run application:
-
-```
-lein clean
-lein figwheel dev
-```
-
-Figwheel will automatically push cljs changes to the browser.
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 
 ## Caveats
 

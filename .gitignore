@@ -5,6 +5,7 @@
 /resources/public/data.edn
 /build/data.edn
 out
+/site
 /figwheel_server.log
 /pullq.conf
 /.nrepl-port

@@ -10,16 +10,17 @@
                  [re-frame "0.12.0"]
                  [soda-ash "0.83.0"]]
   :plugins [[lein-cljsbuild "1.1.8"]]
+  :uberjar-name "pullq.jar"
   :main pullq.main
   :min-lein-version "2.5.3"
   :source-paths ["src/clj" "src/cljs"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
-  :cljsbuild
-  {:builds
-   [{:id           "min"
-     :source-paths ["src/cljs"]
-     :compiler     {:main            pullq.main
-                    :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :advanced
-                    :closure-defines {goog.DEBUG false}
-                    :pretty-print    false}}]})
+  :profiles {:uberjar {:aot :all}}
+  :cljsbuild {:builds
+              [{:id           "min"
+                :source-paths ["src/cljs"]
+                :compiler     {:main            pullq.main
+                               :output-to       "resources/public/js/compiled/app.js"
+                               :optimizations   :advanced
+                               :closure-defines {goog.DEBUG false}
+                               :pretty-print    false}}]})
