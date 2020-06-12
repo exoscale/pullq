@@ -43,8 +43,7 @@
        (filter (match-fn (:search db)))
        (filter (only-fn (:only db)))
        (remove (hidden-label-fn (:hidden-labels db)))
-       (sort-by (sort-fn (:order db)))
-       (reverse)))
+       (sort-by (sort-fn (:order db)) (:sort-dir db))))
 
 (re-frame/reg-sub
  ::pulls
@@ -71,8 +70,8 @@
 (re-frame/reg-sub
  ::menu-stats
  (fn [db]
-   (let [pulls     (filter-pulls db)
-         open      (count (filter is-open? pulls))]
+   (let [pulls (filter-pulls db)
+         open  (count (filter is-open? pulls))]
      {:open          open
       :bug           (count (filter bug? pulls))
       :ready         (- (count pulls) open)
@@ -81,6 +80,7 @@
       :filter        (:filter db)
       :hidden-labels (:hidden-labels db)
       :order         (:order db)
+      :sort-dir      (:sort-dir db)
       :search        (:search db)
       :only          (:only db)})))
 

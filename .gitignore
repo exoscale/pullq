@@ -1,7 +1,9 @@
 /*.log
 /target
 /*-init.clj
-*/data.edn
+/resources/public/js/compiled
+/resources/public/data.edn
+/build/data.edn
 out
 /figwheel_server.log
 /pullq.conf

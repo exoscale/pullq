@@ -1,46 +1,22 @@
-(defproject pull-queue "0.1.1"
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.520"]
-                 [org.clojure/tools.cli "0.4.1"]
+(defproject exoscale/pullq "0.3.0"
+  :dependencies [[org.clojure/clojure "1.10.2-alpha1"]
+                 [org.clojure/clojurescript "1.10.773"]
+                 [org.clojure/tools.cli "1.0.194"]
                  [cljsjs/moment "2.24.0-0"]
-                 [day8.re-frame/http-fx "0.1.6"]
-                 [irresponsible/tentacles "0.6.3"]
-                 [clj-time "0.15.1"]
-                 [reagent "0.8.1"]
-                 [re-frame "0.10.6"]
-                 [soda-ash "0.83.0"]
-                 [aleph "0.4.6"]
-                 [ring/ring-core "1.8.0"]
-                 [bidi "2.1.6"]]
-  :plugins [[lein-cljsbuild "1.1.7"]]
+                 [day8.re-frame/http-fx "v0.2.0"]
+                 [irresponsible/tentacles "0.6.6"]
+                 [clj-time "0.15.2"]
+                 [reagent "0.9.1"]
+                 [re-frame "0.12.0"]
+                 [soda-ash "0.83.0"]]
+  :plugins [[lein-cljsbuild "1.1.8"]]
   :main pullq.main
   :min-lein-version "2.5.3"
   :source-paths ["src/clj" "src/cljs"]
-  :clean-targets ^{:protect false} ["target"]
-  :figwheel {:css-dirs ["resources/public/css"]}
-  :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-  :profiles
-  {:dev  {:dependencies [[binaryage/devtools "0.9.10"]
-                         [day8.re-frame/tracing "0.5.1"]
-                         [figwheel-sidecar "0.5.18"]
-                         [cider/piggieback "0.4.0"]]
-          :plugins      [[lein-figwheel "0.5.18"]]}
-   :uberjar {:aot :all
-             :resource-paths ["resources/public"]}
-   :prod {:dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}}
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :cljsbuild
   {:builds
-   [{:id           "dev"
-     :source-paths ["src/cljs"]
-     :figwheel     {:on-jsload "pullq.main/mount-root"}
-     :compiler     {:main                 pullq.main
-                    :output-to            "resources/public/js/compiled/app.js"
-                    :output-dir           "resources/public/js/compiled/out"
-                    :asset-path           "js/compiled/out"
-                    :source-map-timestamp true
-                    :external-config
-                    {:devtools/config {:features-to-install :all}}}}
-    {:id           "min"
+   [{:id           "min"
      :source-paths ["src/cljs"]
      :compiler     {:main            pullq.main
                     :output-to       "resources/public/js/compiled/app.js"
