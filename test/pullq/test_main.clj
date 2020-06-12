@@ -1,6 +1,6 @@
-(ns pullq.test-queue
+(ns pullq.test-main
   (:require [clojure.test :refer :all]
-            [pullq.queue :refer :all]))
+            [pullq.main :refer :all]))
 
 (defn make-raw-review
   [username time state]

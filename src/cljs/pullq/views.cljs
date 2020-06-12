@@ -86,7 +86,7 @@
   []
   (let [stats (re-frame/subscribe [::subs/menu-stats])]
     (fn []
-      (let [{:keys [filter search open bug ready repos order authors only]} @stats]
+      (let [{:keys [filter search open bug ready repos sort-dir order authors only]} @stats]
         [:div
          [sa/Menu {:vertical true :fluid true}
           [filter-counter filter :bug bug]
@@ -118,6 +118,21 @@
               :active   (= order :updated)
               :on-click #(re-frame/dispatch [::events/set-order :updated])}
              "Updated"]]]
+
+          [sa/MenuItem
+           [sa/MenuHeader "Sort Direction"]
+           [sa/MenuMenu
+            [sa/MenuItem
+             {:as       "a"
+              :active   (= sort-dir <)
+              :on-click #(re-frame/dispatch [::events/set-sort-dir <])}
+             "Ascending"]
+            [sa/MenuItem
+             {:as       "a"
+              :active   (= sort-dir >)
+              :on-click #(re-frame/dispatch [::events/set-sort-dir >])}
+             "Descending"]]]
+
           [hidden-label-menu]
           [sa/MenuItem
            [sa/MenuHeader "Repos"]

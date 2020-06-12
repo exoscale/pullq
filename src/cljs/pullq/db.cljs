@@ -5,5 +5,6 @@
    :hidden-labels ["wip" "hold" "content"]
    :filter        :open
    :order         :updated
+   :sort-dir      <
    :search        ""
    :pulls         []})
