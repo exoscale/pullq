@@ -140,11 +140,34 @@
          ["-h" "--help" "Show Help" :default false :flag true]
          ["-t" "--token" "Github Token, overrides GITHUB_TOKEN environment"]
          ["-o" "--output" "Where to dump data" :default "build/data.edn"]
+         ["-S" "--syncdir" "A directory in which to produce a full static site"]
          ["-f" "--path" "Configuration file path" :default "pullq.conf"])
     (catch Exception _
       (binding [*out* *err*]
         (println "could not parse arguments")
         (System/exit 1)))))
+
+(def files
+  ["data.edn"
+   "index.html"
+   "css/themes/default/assets/fonts/icons.eot"
+   "css/themes/default/assets/fonts/icons.otf"
+   "css/themes/default/assets/fonts/icons.ttf"
+   "css/themes/default/assets/fonts/icons.svg"
+   "css/themes/default/assets/fonts/icons.woff"
+   "css/themes/default/assets/fonts/icons.woff2"
+   "css/themes/default/assets/images/flags.png"
+   "css/semantic.min.css"
+   "img/favicon.png"
+   "js/compiled/app.js"])
+
+(defn copy-files
+  [syncdir]
+  (doseq [path files
+          :let [src (io/file "build" path)
+                dst (io/file syncdir path)]]
+    (io/make-parents dst)
+    (io/copy src dst)))
 
 (defn -main
   [& args]
@@ -154,7 +177,7 @@
         auth            {:oauth-token (or (:token opts) env-token)
                          :per-page 100}]
     (when (:help opts)
-      (println "Usage: pullq [-t token] [-f config] [-o outfile]\n")
+      (println "Usage: pullq [-t token] [-f config] [-o outfile] [-S syncdir]\n")
       (print banner)
       (flush)
       (System/exit 0))
@@ -162,6 +185,9 @@
       (println "starting dump, this might take a while")
       (spit (:output opts) (with-out-str (pprint (pull-queue auth config))))
       (println "created data file in:" (:output opts))
+      (when-some [syncdir (:syncdir opts)]
+        (println "copying full website output to:" syncdir)
+        (copy-files syncdir))
       (catch Exception e
         (binding [*out* *err*]
           (println "could not generate stats:" (.getMessage e))
