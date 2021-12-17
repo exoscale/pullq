@@ -78,7 +78,7 @@
                  :else                 "ready")}))
 
 (defn pull-stats
-  [auth min-oks {:keys [labels number title mergeable_state] :as pull}]
+  [auth min-oks {:keys [labels number title draft] :as pull}]
   (let [updated     (:updated_at pull)
         created     (:created_at pull)
         login       (get-in pull [:user :login])
@@ -91,7 +91,7 @@
      :url             (:html_url pull)
      :labels          (mapv :name labels)
      :title           title
-     :mergeable-state mergeable_state
+     :draft           draft
      :updated         (to-epoch (parse updated))
      :created         (to-epoch (parse created))
      :login           login
@@ -110,7 +110,7 @@
   [auth]
   (fn [[user repo min-oks]]
     (->> (pulls-with-details user repo auth)
-         (remove #(= "draft" (:mergeable_state %)))
+         (remove #(:draft %))
          (map (partial pull-stats auth min-oks)))))
 
 (defn pull-queue
@@ -198,7 +198,4 @@
   (def config [["pyr" "dot.emacs" 2] ["pyr" "watchman" 2]])
 
 ;;  (pulls-with-details "pyr" "dot.emacs" auth)
-  (pull-queue auth config)
-
-
-  )
+  (pull-queue auth config))
